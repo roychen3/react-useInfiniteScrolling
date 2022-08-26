@@ -1,5 +1,5 @@
 ### DEMO
-https://roychen3.github.io/react-use-infinite-scrolling
+https://roychen3.github.io/react-useInfiniteScrolling
 
 <br />
 
