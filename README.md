@@ -6,10 +6,6 @@ https://roychen3.github.io/react-useInfiniteScrolling
 ### node v16.14.2
 
 <br />
-
-### Remove gh-page branch before deploy
-
-<br />
 <br />
 <br />
 
@@ -18,3 +14,5 @@ https://roychen3.github.io/react-useInfiniteScrolling
 ### `npm install`
 
 ### `npm start`
+
+### Remove gh-page branch before deploy
