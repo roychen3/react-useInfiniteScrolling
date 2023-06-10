@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Fragment } from 'react';
 
 import { useInfiniteScrolling } from './hook/useInfiniteScrolling';
 
@@ -10,58 +10,72 @@ function App() {
   const [startId, setStartId] = useState(0);
   const [hasMore, setHasMore] = useState(false);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(() => {
+    let cancelFetch = false;
     setDataLoading(true);
-    const response = await fetch(
+    fetch(
       `https://jsonplaceholder.typicode.com/todos?_start=${startId}&_limit=40`
-    );
-    const responseData = await response.json();
-    const responseDataLength = responseData.length;
-    if (responseDataLength > 0) {
-      setTodoList((preTodoList) => [...preTodoList, ...responseData]);
-      setStartId(responseData[responseDataLength - 1].id);
-      setHasMore(true);
-    } else {
-      setHasMore(false);
-    }
-    setDataLoading(false);
+    )
+      .then((response) => response.json())
+      .then((responseData) => {
+        if (cancelFetch) return;
+        const responseDataLength = responseData.length;
+        if (responseDataLength > 0) {
+          setTodoList((preTodoList) => [...preTodoList, ...responseData]);
+          setStartId(responseData[responseDataLength - 1].id);
+          setHasMore(true);
+        } else {
+          setHasMore(false);
+        }
+      })
+      .catch((error) => {
+        console.error(error.message);
+      })
+      .finally(() => {
+        setDataLoading(false);
+      });
+
+    return () => {
+      cancelFetch = true;
+    };
   }, [startId]);
 
   const handleInfiniteScrollingTrigger = useCallback(() => {
     if (hasMore && dataLoading === false) {
-      fetchData().catch((error) => {
-        console.log(error.message);
-      });
+      fetchData();
     }
   }, [hasMore, dataLoading, fetchData]);
   const lastElementRef = useInfiniteScrolling(handleInfiniteScrollingTrigger);
 
   useEffect(() => {
+    let cancelFetch = () => {};
     if (todoList.length === 0) {
-      fetchData().catch((error) => {
-        console.log(error.message);
-      });
+      cancelFetch = fetchData();
     }
+
+    return () => {
+      cancelFetch();
+    };
   }, [todoList, fetchData]);
 
   return (
     <div className="list">
       {todoList.map((item, itemIdx) => (
-        <>
+        <Fragment key={item.id}>
           {itemIdx + 1 === todoList.length ? (
-            <div key={item.id} ref={lastElementRef} className="item">
+            <div ref={lastElementRef} className="item">
               <span>{item.id}</span>
               <span>{item.completed ? 'O' : 'X'}</span>
               <span>{item.title}</span>
             </div>
           ) : (
-            <div key={item.id} className="item">
+            <div className="item">
               <span>{item.id}</span>
               <span>{item.completed ? 'O' : 'X'}</span>
               <span>{item.title}</span>
             </div>
           )}
-        </>
+        </Fragment>
       ))}
       {dataLoading && <p>loading...</p>}
       {hasMore === false && <p>in the end</p>}
