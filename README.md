@@ -1,18 +1,57 @@
-### DEMO
-https://roychen3.github.io/react-useInfiniteScrolling
+# react-useInfiniteScrolling
 
-<br />
+Infinite get more data by scroll
 
-### node v16.14.2
+[DEMO](https://roychen3.github.io/react-useInfiniteScrolling)
 
-<br />
-<br />
-<br />
+## Getting Started
 
-# Getting Started with Create React App
+```bash
+npm run start
+```
 
-### `npm install`
+## Installation
 
-### `npm start`
+node v16.14.2
 
-### Remove gh-page branch before deploy
+```bash
+npm install
+```
+
+## Usage
+
+```jsx
+import { useInfiniteScrolling } from './hook/useInfiniteScrolling';
+
+function Component() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+
+  const handleInfiniteScrollingTrigger = useCallback(() => {
+    if (hasMore && loading === false) {
+      fetchData();
+    }
+  }, [hasMore, loading, fetchData]);
+  const lastElementRef = useInfiniteScrolling(handleInfiniteScrollingTrigger);
+
+  return (
+    <div>
+      {data.map((item, itemIdx) => (
+        <Fragment key={item.id}>
+          {itemIdx + 1 === data.length ? (
+            <div ref={lastElementRef}>{item}</div>
+          ) : (
+            <div>{item}</div>
+          )}
+        </Fragment>
+      ))}
+      {hasMore === false && <p>in the end</p>}
+    </div>
+  );
+}
+```
+
+## License
+
+[LICENSE](LICENSE)
